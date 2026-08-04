@@ -1,17 +1,77 @@
 [
   {
     "question": "Người mua có thể yêu cầu trả hàng/hoàn tiền trong thời hạn bao lâu sau khi nhận hàng?",
-    "expected_answer": "Trong vòng 15 ngày kể từ khi giao hàng thành công (24 giờ đối với thực phẩm tươi sống/đông lạnh).",
-    "expected_context": "Trang Returns and Refunds Policy, mục Return/Refund Eligibility"
+    "expected_answer": "Trong vòng 15 ngày kể từ khi giao hàng thành công đối với tất cả đơn hàng Shopee Mall và Shopee Thường (riêng 24 giờ đối với thực phẩm tươi sống/đông lạnh).",
+    "expected_context": "chinh-sach-tra-hang-va-hoan-tien-shopee.md"
   },
   {
     "question": "Shopee hỗ trợ những phương thức thanh toán nào?",
-    "expected_answer": "ShopeePay Wallet, thẻ tín dụng/ghi nợ, trả góp qua thẻ, QR Code, chuyển khoản qua app ngân hàng, thẻ NAPAS, Apple Pay, Google Pay, và COD.",
-    "expected_context": "Trang Payment Methods Overview"
+    "expected_answer": "ShopeePay, Thẻ tín dụng/ghi nợ (Visa, Mastercard, JCB, Amex), Thẻ ATM nội địa (Napas), Chuyển khoản VietQR, SPayLater (mua trước trả sau), và Thanh toán khi nhận hàng (COD).",
+    "expected_context": "phuong-thuc-thanh-toan-shopee.md"
   },
   {
-    "question": "Người bán không được đăng bán những sản phẩm nào?",
-    "expected_answer": "Hàng giả/nhái, sản phẩm bất hợp pháp, vi phạm sở hữu trí tuệ, và các mặt hàng nằm trong danh sách cấm của sàn.",
-    "expected_context": "Trang Product Listing Regulations, mục Prohibited Content"
+    "question": "Người bán không được đăng bán những sản phẩm nào trên Shopee?",
+    "expected_answer": "Hàng giả, hàng nhái, động vật hoang dã, vũ khí, chất cháy nổ, thuốc chữa bệnh cần kê đơn, và các sản phẩm vi phạm sở hữu trí tuệ hoặc pháp luật Việt Nam.",
+    "expected_context": "quy-dinh-dang-ban-san-pham-nguoi-ban.md"
+  },
+  {
+    "question": "Thời gian xử lý khiếu nại trả hàng hoàn tiền của Shopee là bao lâu?",
+    "expected_answer": "Thời gian xử lý khiếu nại thông thường kéo dài từ 3 đến 5 ngày làm việc kể từ khi Shopee nhận đủ bằng chứng hợp lệ.",
+    "expected_context": "chinh-sach-tra-hang-va-hoan-tien-shopee.md"
+  },
+  {
+    "question": "Cần chuẩn bị bằng chứng gì khi khiếu nại hoàn tiền cho đơn hàng bị vỡ/lỗi?",
+    "expected_answer": "Video mở gói hàng liên tục không cắt ghép hiển thị rõ 6 mặt kiện hàng, mã vận đơn, ảnh chụp cận cảnh chi tiết sản phẩm bị lỗi hoặc hư hỏng.",
+    "expected_context": "article_03.md"
+  },
+  {
+    "question": "Thời gian nhận lại tiền hoàn trả qua ví ShopeePay là bao lâu?",
+    "expected_answer": "Tiền hoàn sẽ được chuyển trực tiếp vào số dư ví ShopeePay trong vòng 24 giờ kể từ khi đơn hàng hủy/hoàn tiền được duyệt thành công.",
+    "expected_context": "phuong-thuc-thanh-toan-shopee.md"
+  },
+  {
+    "question": "Thời gian nhận lại tiền hoàn trả qua thẻ tín dụng/ghi nợ là bao lâu?",
+    "expected_answer": "Thời gian hoàn tiền vào thẻ tín dụng/ghi nợ từ 7 đến 14 ngày làm việc tùy thuộc vào chu kỳ sao kê của ngân hàng phát hành thẻ.",
+    "expected_context": "phuong-thuc-thanh-toan-shopee.md"
+  },
+  {
+    "question": "Shopee bảo vệ dữ liệu cá nhân của người dùng như thế nào?",
+    "expected_answer": "Shopee cam kết tuân thủ tiêu chuẩn mã hóa dữ liệu PCI-DSS, mã hóa thông tin tài khoản và không chia sẻ thông tin cá nhân cho bên thứ ba khi chưa được sự đồng ý.",
+    "expected_context": "chinh-sach-bao-mat-thong-tin-shopee.md"
+  },
+  {
+    "question": "Quy định về việc Hủy đơn hàng tự động từ phía Shopee là gì?",
+    "expected_answer": "Đơn hàng sẽ bị hủy tự động nếu người bán không chuẩn bị hàng đúng hạn quy định (DTS) hoặc không thể kết nối tới đơn vị vận chuyển quá 48 giờ.",
+    "expected_context": "quy-dinh-dang-ban-san-pham-nguoi-ban.md"
+  },
+  {
+    "question": "Làm sao để đổi phương thức thanh toán sau khi đặt hàng thành công?",
+    "expected_answer": "Bạn cần hủy đơn hàng hiện tại trước khi người bán xác nhận và tiến hành đặt lại đơn mới với phương thức thanh toán mong muốn.",
+    "expected_context": "phuong-thuc-thanh-toan-shopee.md"
+  },
+  {
+    "question": "Chính sách bảo vệ người mua Shopee Đảm Bảo hoạt động như thế nào?",
+    "expected_answer": "Shopee giữ tiền thanh toán của người mua cho đến khi người mua nhận được hàng và xác nhận hài lòng hoặc hết thời hạn khiếu nại quy định.",
+    "expected_context": "chinh-sach-tra-hang-va-hoan-tien-shopee.md"
+  },
+  {
+    "question": "Dịch vụ Mua trước trả sau SPayLater hỗ trợ các kỳ hạn thanh toán nào?",
+    "expected_answer": "SPayLater hỗ trợ chia nhỏ khoản thanh toán linh hoạt theo các kỳ hạn 1 tháng, 3 tháng, 6 tháng hoặc 12 tháng.",
+    "expected_context": "phuong-thuc-thanh-toan-shopee.md"
+  },
+  {
+    "question": "Đối với đơn hàng quốc tế khi bị lỗi thì quy trình đổi trả ra sao?",
+    "expected_answer": "Người mua được Shopee Đảm Bảo hỗ trợ 100%, trong nhiều trường hợp sau khi duyệt khiếu nại Shopee sẽ hoàn tiền ngay mà không bắt buộc gửi trả hàng ra nước ngoài.",
+    "expected_context": "article_04.md"
+  },
+  {
+    "question": "Người bán bị phạt điểm Sao Quả Tạ trong trường hợp nào?",
+    "expected_answer": "Người bán bị phạt điểm khi tỷ lệ giao hàng trễ cao, tỷ lệ hủy đơn do lỗi người bán cao, hoặc cố tình đăng bán sản phẩm bị cấm/giả mạo.",
+    "expected_context": "quy-dinh-dang-ban-san-pham-nguoi-ban.md"
+  },
+  {
+    "question": "Làm thế nào để liên hệ hỗ trợ tổng đài Shopee khi gặp sự cố khẩn cấp?",
+    "expected_answer": "Người dùng có thể chat trực tiếp với nhân viên hỗ trợ tại mục Trợ Lý Shopee trên ứng dụng di động hoặc gọi tổng đài hỗ trợ 19001221.",
+    "expected_context": "article_01.md"
   }
 ]
