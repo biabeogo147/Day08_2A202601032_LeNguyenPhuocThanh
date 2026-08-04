@@ -9,6 +9,9 @@ import os
 import sys
 from pathlib import Path
 import numpy as np
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Đảm bảo stdout hỗ trợ utf-8
 if hasattr(sys.stdout, "reconfigure"):
@@ -35,7 +38,7 @@ def _get_query_embedding(query: str, dim: int = 3072) -> list[float]:
             print(f"[WARN] Query embedding error: {e}")
             pass
 
-    # 2. Fallback hashing dense embedding
+    # Fallback hashing dense embedding
     from src.task4_chunking_indexing import _compute_fallback_embedding
     return _compute_fallback_embedding(query, dim=dim)
 

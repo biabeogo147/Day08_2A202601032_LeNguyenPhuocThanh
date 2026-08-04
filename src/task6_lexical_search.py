@@ -17,63 +17,67 @@ BM25 hoạt động thế nào:
 
 from pathlib import Path
 
-# TODO: Load corpus từ data/standardized/ hoặc từ vector store
-CORPUS: list[dict] = []  # List of {'content': str, 'metadata': dict}
+import json
+import re
+from pathlib import Path
 
+_CORPUS_CACHE = None
+
+def _get_corpus():
+    global _CORPUS_CACHE
+    if _CORPUS_CACHE is None:
+        indexed_json = Path(__file__).parent.parent / "chroma_db" / "indexed_chunks.json"
+        if indexed_json.exists():
+            with open(indexed_json, encoding="utf-8") as f:
+                _CORPUS_CACHE = json.load(f)
+        else:
+            _CORPUS_CACHE = []
+    return _CORPUS_CACHE
 
 def build_bm25_index(corpus: list[dict]):
-    """
-    Xây dựng BM25 index từ corpus.
-
-    Args:
-        corpus: List of {'content': str, 'metadata': dict}
-    """
-    # TODO: Implement BM25 index
-    #
-    # from rank_bm25 import BM25Okapi
-    #
-    # # Tokenize - có thể đơn giản split(), hoặc dùng underthesea cho tiếng Việt
-    # tokenized_corpus = [doc["content"].lower().split() for doc in corpus]
-    # bm25 = BM25Okapi(tokenized_corpus)
-    # return bm25
-    raise NotImplementedError("Implement build_bm25_index")
-
+    try:
+        from rank_bm25 import BM25Okapi
+        tokenized = [re.findall(r"\w+", doc["content"].lower()) for doc in corpus]
+        return BM25Okapi(tokenized)
+    except Exception:
+        return None
 
 def lexical_search(query: str, top_k: int = 10) -> list[dict]:
-    """
-    Tìm kiếm từ khóa sử dụng BM25.
+    corpus = _get_corpus()
+    if not corpus:
+        return []
 
-    Args:
-        query: Câu truy vấn
-        top_k: Số lượng kết quả tối đa
+    tokens = re.findall(r"\w+", query.lower())
+    if not tokens:
+        return []
 
-    Returns:
-        List of {
-            'content': str,
-            'score': float,      # BM25 score
-            'metadata': dict
-        }
-        Sorted by score descending.
-    """
-    # TODO: Implement lexical search
-    #
-    # tokenized_query = query.lower().split()
-    # scores = bm25.get_scores(tokenized_query)
-    #
-    # # Get top_k indices
-    # import numpy as np
-    # top_indices = np.argsort(scores)[::-1][:top_k]
-    #
-    # results = []
-    # for idx in top_indices:
-    #     if scores[idx] > 0:
-    #         results.append({
-    #             "content": CORPUS[idx]["content"],
-    #             "score": float(scores[idx]),
-    #             "metadata": CORPUS[idx]["metadata"]
-    #         })
-    # return results
-    raise NotImplementedError("Implement lexical_search")
+    bm25 = build_bm25_index(corpus)
+    if bm25:
+        scores = bm25.get_scores(tokens)
+        scored_chunks = []
+        for idx, score in enumerate(scores):
+            if score > 0:
+                scored_chunks.append({
+                    "content": corpus[idx]["content"],
+                    "score": round(float(score), 4),
+                    "metadata": corpus[idx]["metadata"]
+                })
+        scored_chunks.sort(key=lambda x: x["score"], reverse=True)
+        return scored_chunks[:top_k]
+
+    # Keyword overlap fallback if rank_bm25 is missing
+    scored_chunks = []
+    for doc in corpus:
+        text = doc["content"].lower()
+        score = sum(text.count(t) for t in tokens)
+        if score > 0:
+            scored_chunks.append({
+                "content": doc["content"],
+                "score": float(score),
+                "metadata": doc["metadata"]
+            })
+    scored_chunks.sort(key=lambda x: x["score"], reverse=True)
+    return scored_chunks[:top_k]
 
 
 if __name__ == "__main__":

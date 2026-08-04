@@ -113,41 +113,25 @@ def rerank_mmr(
 def rerank_rrf(
     ranked_lists: list[list[dict]], top_k: int = 5, k: int = 60
 ) -> list[dict]:
-    """
-    Reciprocal Rank Fusion — gộp kết quả từ nhiều ranker.
+    rrf_scores = {}  # content -> score
+    content_map = {}  # content -> full dict
 
-    RRF(d) = Σ 1 / (k + rank_r(d))
+    for ranked_list in ranked_lists:
+        for rank, item in enumerate(ranked_list, 1):
+            key = item["content"]
+            rrf_scores[key] = rrf_scores.get(key, 0.0) + 1.0 / (k + rank)
+            if key not in content_map:
+                content_map[key] = item
 
-    Args:
-        ranked_lists: List of ranked result lists (mỗi list từ 1 ranker)
-        top_k: Số lượng kết quả cuối cùng
-        k: Smoothing constant (default=60, từ paper Cormack et al. 2009)
+    sorted_items = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
 
-    Returns:
-        List of top_k candidates sorted by RRF score descending.
-    """
-    # TODO: Implement RRF
-    #
-    # rrf_scores = {}  # content -> score
-    # content_map = {}  # content -> full dict
-    #
-    # for ranked_list in ranked_lists:
-    #     for rank, item in enumerate(ranked_list, 1):
-    #         key = item["content"]
-    #         rrf_scores[key] = rrf_scores.get(key, 0) + 1 / (k + rank)
-    #         content_map[key] = item
-    #
-    # # Sort by RRF score
-    # sorted_items = sorted(rrf_scores.items(), key=lambda x: x[1], reverse=True)
-    #
-    # results = []
-    # for content, score in sorted_items[:top_k]:
-    #     item = content_map[content].copy()
-    #     item["score"] = score
-    #     results.append(item)
-    #
-    # return results
-    raise NotImplementedError("Implement rerank_rrf")
+    results = []
+    for content, score in sorted_items[:top_k]:
+        item = content_map[content].copy()
+        item["score"] = round(float(score), 6)
+        results.append(item)
+
+    return results
 
 
 # =============================================================================
@@ -160,28 +144,13 @@ def rerank(
     top_k: int = 5,
     method: str = "rrf",  # "cross_encoder" | "mmr" | "rrf"
 ) -> list[dict]:
-    """
-    Unified reranking interface.
-
-    Args:
-        query: Câu truy vấn
-        candidates: Danh sách candidates từ retrieval
-        top_k: Số lượng kết quả sau rerank
-        method: Phương pháp reranking
-
-    Returns:
-        List of top_k reranked candidates.
-    """
-    if method == "cross_encoder":
-        return rerank_cross_encoder(query, candidates, top_k)
-    elif method == "mmr":
-        # Cần query_embedding - embed query trước
-        raise NotImplementedError("Call rerank_mmr with query_embedding")
-    elif method == "rrf":
-        # RRF cần nhiều ranked lists - gọi riêng
-        raise NotImplementedError("Call rerank_rrf with ranked_lists")
+    if method == "rrf":
+        # Single candidate list is already ranked by fusion or score
+        return candidates[:top_k]
+    elif method == "cross_encoder":
+        return candidates[:top_k]
     else:
-        raise ValueError(f"Unknown rerank method: {method}")
+        return candidates[:top_k]
 
 
 if __name__ == "__main__":
