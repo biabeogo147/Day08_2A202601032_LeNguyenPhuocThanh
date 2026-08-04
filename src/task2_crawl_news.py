@@ -35,8 +35,12 @@ def setup_directory():
 
 # TODO: Điền danh sách URL bài viết cần crawl
 ARTICLE_URLS = [
-    # Ví dụ (trang công khai Shopee Vietnam):
-    # "https://help.shopee.vn/portal/4/article/...",
+    "https://help.shopee.vn/portal/article/79124-Huong-dan-theo-doi-don-hang-va-lien-he-SPX",
+    "https://help.shopee.vn/portal/article/79125-Huong-dan-kich-hoat-va-thanh-toan-ShopeePay",
+    "https://help.shopee.vn/portal/article/79126-Huong-dan-cung-cap-bang-chung-khieu-nai-tra-hang",
+    "https://help.shopee.vn/portal/article/79127-Huong-dan-mua-hang-quoc-te-shopee-global",
+    "https://help.shopee.vn/portal/article/79128-Huong-dan-su-dung-dich-vu-SPayLater",
+    "https://help.shopee.vn/portal/article/79129-Cach-xu-ly-khi-tai-khoan-shopee-bi-khoa-loi-F02"
 ]
 
 
@@ -55,15 +59,15 @@ async def crawl_article(url: str) -> dict:
     from crawl4ai import AsyncWebCrawler
 
     # TODO: Implement crawling logic
-    # async with AsyncWebCrawler() as crawler:
-    #     result = await crawler.arun(url=url)
-    #     return {
-    #         "url": url,
-    #         "title": result.metadata.get("title", "Unknown"),
-    #         "date_crawled": datetime.now().isoformat(),
-    #         "content_markdown": result.markdown,
-    #     }
-    raise NotImplementedError("Implement crawl_article")
+    async with AsyncWebCrawler() as crawler:
+        result = await crawler.arun(url=url)
+        return {
+            "url": url,
+            "title": result.metadata.get("title", "Unknown"),
+            "date_crawled": datetime.now().isoformat(),
+            "content_markdown": result.markdown,
+        }
+    # raise NotImplementedError("Implement crawl_article")
 
 
 async def crawl_all():
