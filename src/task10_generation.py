@@ -158,12 +158,17 @@ def _generate_local_fallback_answer(query: str, chunks: list[dict]) -> str:
 # GENERATION
 # =============================================================================
 
-def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
+def generate_with_citation(
+    query: str,
+    top_k: int = TOP_K,
+    temperature: float = TEMPERATURE,
+    retrieval_mode: str = "hybrid"
+) -> dict:
     """
     End-to-end RAG generation với trích dẫn nguồn (citation).
 
     Pipeline:
-        1. Retrieve relevant chunks (Hybrid + Fallback)
+        1. Retrieve relevant chunks (Hybrid / Dense / Lexical / PageIndex)
         2. Reorder chunks để tránh 'lost in the middle'
         3. Format context với source labels
         4. Gửi prompt đến LLM (Gemini / OpenRouter / OpenAI / Fallback)
@@ -172,12 +177,14 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
     Args:
         query: Câu hỏi của người dùng
         top_k: Số chunks context tối đa
+        temperature: Nhiệt độ sáng tạo của LLM (0.0 - 1.0)
+        retrieval_mode: Phương thức tìm kiếm ('hybrid', 'semantic', 'lexical', 'pageindex')
 
     Returns:
         {
             'answer': str,           # Câu trả lời có citation
             'sources': list[dict],   # Danh sách chunks đã dùng
-            'retrieval_source': str  # 'hybrid' hoặc 'pageindex'
+            'retrieval_source': str  # 'hybrid', 'semantic', 'lexical', hoặc 'pageindex'
         }
     """
     if not query or not query.strip():
@@ -187,8 +194,28 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
             "retrieval_source": "none"
         }
 
-    # Step 1: Retrieve
-    chunks = retrieve(query, top_k=top_k)
+    # Step 1: Retrieve theo mode
+    if retrieval_mode == "semantic":
+        try:
+            from src.task5_semantic_search import semantic_search
+            chunks = semantic_search(query, top_k=top_k)
+        except ImportError:
+            chunks = retrieve(query, top_k=top_k)
+    elif retrieval_mode == "lexical":
+        try:
+            from src.task6_lexical_search import lexical_search
+            chunks = lexical_search(query, top_k=top_k)
+        except ImportError:
+            chunks = retrieve(query, top_k=top_k)
+    elif retrieval_mode == "pageindex":
+        try:
+            from src.task8_pageindex_vectorless import pageindex_search
+            chunks = pageindex_search(query, top_k=top_k)
+        except ImportError:
+            chunks = retrieve(query, top_k=top_k)
+    else:
+        chunks = retrieve(query, top_k=top_k)
+
     if not chunks:
         return {
             "answer": "Tôi không thể xác minh thông tin này từ nguồn tài liệu hiện có.",
@@ -217,7 +244,7 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
             response = client.models.generate_content(
                 model=model_name,
                 contents=f"{SYSTEM_PROMPT}\n\n{user_prompt}",
-                config={"temperature": TEMPERATURE, "top_p": TOP_P}
+                config={"temperature": temperature, "top_p": TOP_P}
             )
             if response and response.text:
                 answer = response.text.strip()
