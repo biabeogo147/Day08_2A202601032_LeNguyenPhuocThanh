@@ -66,7 +66,8 @@ def evaluate_with_custom_metrics(rag_pipeline, golden_dataset: list[dict]) -> di
     """
     scores = {"faithfulness": [], "answer_relevance": [], "context_recall": [], "context_precision": []}
 
-    for item in golden_dataset:
+    for i, item in enumerate(golden_dataset, 1):
+        print(f"  [{i}/{len(golden_dataset)}] Evaluating: {item['question'][:40]}...", flush=True)
         res = rag_pipeline(item["question"])
         answer = res.get("answer", "")
         sources = res.get("sources", [])
@@ -112,15 +113,15 @@ def compare_configs(golden_dataset: list[dict]) -> dict:
 def run_eval_pipeline():
     """Chạy toàn bộ pipeline đánh giá."""
     golden_ds = load_golden_dataset()
-    print(f"Loaded {len(golden_ds)} golden dataset test cases")
+    print(f"Loaded {len(golden_ds)} golden dataset test cases", flush=True)
 
     from src.task10_generation import generate_with_citation
-    print("Evaluating Config A (Hybrid + RRF Rerank)...")
+    print("Evaluating Config A (Hybrid + RRF Rerank)...", flush=True)
     res_a = evaluate_with_custom_metrics(generate_with_citation, golden_ds)
-    print(f"  Config A Scores: {res_a}")
+    print(f"  Config A Scores: {res_a}", flush=True)
 
     comparison = compare_configs(golden_ds)
-    print(f"  Comparison Results: {comparison}")
+    print(f"  Comparison Results: {comparison}", flush=True)
     return comparison
 
 
