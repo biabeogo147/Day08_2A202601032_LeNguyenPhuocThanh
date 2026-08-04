@@ -37,10 +37,9 @@ CHUNK_OVERLAP = 50
 # phân đoạn đoạn văn (\n\n), dòng (\n), câu (. ) và từ (khoảng trắng).
 CHUNKING_METHOD = "recursive"
 
-# EMBEDDING_MODEL: BAAI/bge-m3 là mô hình embedding đa ngôn ngữ hàng đầu,
-# đặc biệt tối ưu cho tiếng Việt và tiếng Anh, hỗ trợ tốt cả dense lẫn sparse retrieval.
-EMBEDDING_MODEL = "BAAI/bge-m3"
-EMBEDDING_DIM = 1024
+# EMBEDDING_MODEL: Mô hình embedding Gemini Embedding 2 của Google (3072 dim)
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2")
+EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "3072"))
 
 # VECTOR_STORE: ChromaDB lưu trữ vector cục bộ (persistent), nhẹ, không yêu cầu cài đặt Docker.
 VECTOR_STORE = "chromadb"
@@ -134,7 +133,7 @@ def _compute_fallback_embedding(text: str, dim: int = EMBEDDING_DIM) -> list[flo
 
 def embed_chunks(chunks: list[dict]) -> list[dict]:
     """
-    Embed toàn bộ chunks bằng embedding model đã chọn.
+    Embed toàn bộ chunks bằng embedding model đã chọn (bắt buộc gemini-embedding-2).
 
     Returns:
         Mỗi chunk dict được thêm key 'embedding': list[float]
@@ -142,20 +141,29 @@ def embed_chunks(chunks: list[dict]) -> list[dict]:
     texts = [c["content"] for c in chunks]
     embeddings = None
 
-    # 1. Thử dùng Google GenAI nếu có API key
-    if os.getenv("GEMINI_API_KEY"):
+    # 1. Thử dùng Google GenAI với model gemini-embedding-2 nếu có GEMINI_API_KEY
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    if gemini_key:
         try:
             from google import genai
-            client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-            resp = client.models.embed_content(
-                model="text-embedding-004",
-                contents=texts
-            )
-            embeddings = [e.values for e in resp.embeddings]
-        except Exception:
+            client = genai.Client(api_key=gemini_key)
+            model_name = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2")
+            
+            # Embed theo batch để đảm bảo ổn định
+            embeddings = []
+            batch_size = 50
+            for i in range(0, len(texts), batch_size):
+                batch_texts = texts[i:i + batch_size]
+                resp = client.models.embed_content(
+                    model=model_name,
+                    contents=batch_texts
+                )
+                embeddings.extend([e.values for e in resp.embeddings])
+        except Exception as e:
+            print(f"[WARN] Gemini embedding API error: {e}")
             embeddings = None
 
-    # 2. Fallback deterministic dense embedding (bge-m3 compatible dimension)
+    # 2. Fallback deterministic dense embedding
     if embeddings is None:
         embeddings = [_compute_fallback_embedding(t, dim=EMBEDDING_DIM) for t in texts]
 

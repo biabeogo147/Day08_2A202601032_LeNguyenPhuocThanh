@@ -18,19 +18,21 @@ CHROMA_DIR = Path(__file__).parent.parent / "chroma_db"
 INDEX_FILE = CHROMA_DIR / "indexed_chunks.json"
 
 
-def _get_query_embedding(query: str, dim: int = 1024) -> list[float]:
+def _get_query_embedding(query: str, dim: int = 3072) -> list[float]:
     """Tạo vector embedding cho câu truy vấn query."""
-    # 1. Thử dùng Google GenAI nếu có API key
-    if os.getenv("GEMINI_API_KEY"):
+    gemini_key = os.getenv("GEMINI_API_KEY")
+    if gemini_key:
         try:
             from google import genai
-            client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+            client = genai.Client(api_key=gemini_key)
+            model_name = os.getenv("EMBEDDING_MODEL", "gemini-embedding-2")
             resp = client.models.embed_content(
-                model="text-embedding-004",
+                model=model_name,
                 contents=[query]
             )
             return resp.embeddings[0].values
-        except Exception:
+        except Exception as e:
+            print(f"[WARN] Query embedding error: {e}")
             pass
 
     # 2. Fallback hashing dense embedding

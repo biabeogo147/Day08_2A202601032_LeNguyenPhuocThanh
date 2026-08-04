@@ -69,8 +69,18 @@ Xem code mẫu (DeepEval/RAGAS/TruLens) chi tiết trong `README.md` gốc mục
 
 ## Kiến Trúc Hệ Thống
 
-```
-[Vẽ diagram kiến trúc ở đây]
+```mermaid
+graph TD
+    A[User Query] --> B[Streamlit UI app.py]
+    B --> C[Retrieval Pipeline Task 9]
+    C --> D[Semantic Search - Gemini Embedding 2 Task 5]
+    C --> E[Lexical Search - BM25 Task 6]
+    D & E --> F[Reciprocal Rank Fusion RRF Task 7]
+    F --> G{Chunks Found?}
+    G -- Yes --> H[Reorder Chunks Lost-in-the-Middle Task 10]
+    G -- No --> I[PageIndex Vectorless Fallback Task 8]
+    H & I --> J[LLM Generation - Gemini 3.1 Flash Lite Task 10]
+    J --> K[Response with Citation & Sources UI]
 ```
 
 ---
@@ -79,10 +89,11 @@ Xem code mẫu (DeepEval/RAGAS/TruLens) chi tiết trong `README.md` gốc mục
 
 | Thành viên | MSSV | Nhiệm vụ | Trạng thái |
 |-----------|------|----------|------------|
-| | | | |
-| | | | |
-| | | | |
-| | | | |
+| Lê Nguyễn Phước Thành | 2A202601032 | **Role 1 (Team Leader & RAG Architect)**: Tổng quan kiến trúc RAG, quản lý repo nhóm & thuyết trình | Hoàn thành |
+| Nguyễn Đàm Kiên | 2A202602015 | **Role 2 (Data & Pipeline Specialist)**: Xây dựng Hybrid Search (Dense + BM25), RRF Reranker & Fallback | Hoàn thành |
+| Nguyễn Văn Nam | 2A202601973 | **Role 3 (Frontend & Chatbot Dev)**: Phát triển Streamlit UI Chatbot (app.py) & Task 10 Generation | Hoàn thành |
+| Lê Kim Tính | 2A202601560 | **Role 4 (Evaluation & QA Engineer)**: Xây dựng Golden Dataset & kịch bản kiểm thử RAGAS | Hoàn thành |
+| Trần Chí Hiển | 2A202601162 | **Role 5 (Evaluation & Benchmarking Specialist)**: Đánh giá A/B Testing & Báo cáo kết quả (results.md) | Hoàn thành |
 
 ---
 

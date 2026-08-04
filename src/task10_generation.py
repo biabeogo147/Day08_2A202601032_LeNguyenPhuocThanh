@@ -43,8 +43,8 @@ TOP_P = 0.9
 # TEMPERATURE = 0.2: RAG trong lĩnh vực chính sách và hỗ trợ TMĐT cần độ chính xác thực tế cao (factuality), tránh hallucination
 TEMPERATURE = 0.2
 
-# LLM Provider Model IDs
-GEMINI_MODEL = "gemini-2.5-flash"
+# LLM Provider Model IDs (bắt buộc dùng Gemini 3.1 Flash Lite)
+GEMINI_MODEL = os.getenv("LLM_MODEL", "gemini-3.1-flash-lite")
 OPENROUTER_MODEL = "openai/gpt-4o-mini"
 
 
@@ -213,14 +213,16 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
         try:
             from google import genai
             client = genai.Client(api_key=gemini_key)
+            model_name = os.getenv("LLM_MODEL", GEMINI_MODEL)
             response = client.models.generate_content(
-                model=GEMINI_MODEL,
+                model=model_name,
                 contents=f"{SYSTEM_PROMPT}\n\n{user_prompt}",
                 config={"temperature": TEMPERATURE, "top_p": TOP_P}
             )
             if response and response.text:
                 answer = response.text.strip()
-        except Exception:
+        except Exception as e:
+            print(f"[WARN] Gemini generation API error: {e}")
             answer = None
 
     # Step 5B: Thử dùng OpenRouter / OpenAI nếu có API Key
