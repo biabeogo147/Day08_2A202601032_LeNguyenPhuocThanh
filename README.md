@@ -34,8 +34,10 @@ Dữ liệu mẫu trong repo được crawl thật từ trang trung tâm trợ g
 ## Cấu Trúc Thư Mục
 
 ```
-K4-Day08-RAG-Pipeline/
+K4-Day08-RAG-Pipeline-Starter/
 ├── README.md
+├── LAB_GUIDE.md           ← Hướng dẫn chi tiết & Codelab
+├── checkpoint_timer.html  ← Dashboard đếm ngược Checkpoint & Phân vai
 ├── app.py                 ← Streamlit chatbot (bài nhóm)
 ├── data/
 │   ├── landing/           ← Task 1 & 2: raw files (PDF, JSON)
@@ -55,7 +57,7 @@ K4-Day08-RAG-Pipeline/
 │   └── supervisor.py      ← Pattern nâng cao: Supervisor + Workers song song
 ├── chroma_db/             ← Task 4: vector store đã index (sinh ra khi chạy, không tự viết tay)
 ├── tests/
-│   └── test_individual.py ← Chấm điểm bài cá nhân (pytest)
+│   └── test_individual.py ← Chấm điểm phần Task 1-10 (pytest)
 ├── group_project/
 │   ├── README.md          ← Hướng dẫn bài tập nhóm
 │   └── evaluation/        ← golden_dataset.json, eval_pipeline.py, results.md
@@ -67,7 +69,7 @@ K4-Day08-RAG-Pipeline/
 
 ## Nhiệm Vụ Chi Tiết
 
-### Task 1 — Thu Thập Văn Bản Chính Sách Thương Mại Điện Tử (Cá nhân)
+### Task 1 — Thu Thập Văn Bản Chính Sách Thương Mại Điện Tử
 
 Tìm và tải về **tối thiểu 3 văn bản chính sách/quy định** dạng PDF/DOCX về chính sách thương mại điện tử. Lưu vào `data/landing/`.
 
@@ -83,7 +85,7 @@ Tìm và tải về **tối thiểu 3 văn bản chính sách/quy định** dạ
 
 ---
 
-### Task 2 — Crawl Bài Viết/Thông Báo (Cá nhân)
+### Task 2 — Crawl Bài Viết/Thông Báo
 
 Crawl **tối thiểu 5 bài viết** hướng dẫn hỗ trợ khách hàng (theo dõi đơn hàng, đổi phương thức thanh toán, bằng chứng hoàn tiền, mua hàng xuyên biên giới).
 
@@ -107,7 +109,7 @@ async def crawl_article(url: str, output_dir: str):
 
 ---
 
-### Task 3 — Convert Sang Markdown (Cá nhân)
+### Task 3 — Convert Sang Markdown
 
 Sử dụng [MarkItDown](https://github.com/microsoft/markitdown) của Microsoft để convert toàn bộ file trong `data/landing/` thành Markdown.
 
@@ -140,7 +142,7 @@ PDF — nếu chỉ `pip install markitdown` sẽ báo lỗi `MissingDependencyE
 
 ---
 
-### Task 4 — Chunking & Indexing (Cá nhân)
+### Task 4 — Chunking & Indexing
 
 Chọn **một loại chunking strategy** và **một embedding model** để index toàn bộ markdown files vào vector store.
 
@@ -159,13 +161,12 @@ Các loại splitter phù hợp:
 - `BAAI/bge-m3` (multilingual, tốt cho tiếng Việt)
 - OpenAI `text-embedding-3-small` (nếu có API key)
 
-**Vector Store — khuyến cáo dùng Weaviate:**
+**Vector Store — sử dụng ChromaDB (Vector Store mặc định của bài lab):**
 ```bash
-pip install weaviate-client
+pip install chromadb
 ```
-- Weaviate hỗ trợ hybrid search (dense + BM25) built-in
-- Có thể dùng Docker hoặc Weaviate Cloud
-- Alternatives: ChromaDB (đơn giản), FAISS (nếu chỉ cần dense)
+- ChromaDB lưu trữ vector embeddings (`BAAI/bge-m3`), metadata và thông tin phân đoạn local tại thư mục `chroma_db/`
+- Hỗ trợ truy vấn tìm kiếm tương đồng Cosine (Cosine Similarity Search) phục vụ Dense Retrieval ở Task 5
 
 **Yêu cầu:**
 - Ghi rõ trong code: dùng chunking nào, chunk_size bao nhiêu, overlap bao nhiêu, vì sao
@@ -174,7 +175,7 @@ pip install weaviate-client
 
 ---
 
-### Task 5 — Semantic Search Module (Cá nhân)
+### Task 5 — Semantic Search Module
 
 Viết module thực hiện **semantic search** (dense retrieval) trên vector store.
 
@@ -194,7 +195,7 @@ def semantic_search(query: str, top_k: int = 10) -> list[dict]:
 
 ---
 
-### Task 6 — Lexical Search Module (Cá nhân)
+### Task 6 — Lexical Search Module
 
 Viết module thực hiện **lexical search**. Mặc định sử dụng **BM25**.
 
@@ -229,7 +230,7 @@ def lexical_search(query: str, top_k: int = 10) -> list[dict]:
 
 ---
 
-### Task 7 — Reranking Module (Cá nhân)
+### Task 7 — Reranking Module
 
 Viết module **reranking** để chấm lại độ liên quan của kết quả retrieval.
 
@@ -271,7 +272,7 @@ def rerank(query: str, candidates: list[dict], top_k: int = 5) -> list[dict]:
 
 ---
 
-### Task 8 — PageIndex Vectorless RAG (Cá nhân)
+### Task 8 — PageIndex Vectorless RAG
 
 Đăng ký tài khoản tại [https://pageindex.ai/](https://pageindex.ai/), sau đó sử dụng [PageIndex SDK](https://github.com/VectifyAI/PageIndex) để tạo một **vectorless RAG pipeline**.
 
@@ -296,7 +297,7 @@ def pageindex_search(query: str, top_k: int = 5) -> list[dict]:
 
 ---
 
-### Task 9 — Retrieval Pipeline Hoàn Chỉnh (Cá nhân)
+### Task 9 — Retrieval Pipeline Hoàn Chỉnh
 
 Kết hợp tất cả modules thành một **retrieval pipeline** thống nhất với logic fallback:
 
@@ -335,7 +336,7 @@ def retrieve(query: str, top_k: int = 5, score_threshold: float = 0.3) -> list[d
 
 ---
 
-### Task 10 — Generation Có Citation (Cá nhân)
+### Task 10 — Generation Có Citation
 
 Sắp xếp lại context chunks sau reranking để **tránh lost in the middle**, inject vào prompt, và yêu cầu LLM trả lời có **citation**.
 
@@ -380,7 +381,7 @@ def generate_with_citation(query: str, context_chunks: list[dict]) -> str:
 
 ## Bài Tập Nhóm
 
-> **Sau khi hoàn thành bài cá nhân**, ngồi lại với nhóm để xây dựng **1 trong 2 sản phẩm** sau:
+> **Sau khi cả nhóm hoàn thành Task 1-10**, cùng nhau xây dựng **1 trong 2 sản phẩm** sau:
 
 ---
 
@@ -538,7 +539,7 @@ run_dashboard()
 
 ### Yêu Cầu Chung
 
-1. **Tích hợp pipeline** từ bài cá nhân của các thành viên
+1. **Tích hợp pipeline** Task 1-10 mà cả nhóm đã xây dựng
 2. **Demo hoạt động được** trong buổi trình bày (chạy local hoặc deploy)
 3. **Evaluation pipeline** chạy được và có báo cáo kết quả
 4. **Code push lên repository** chung của nhóm
@@ -605,13 +606,13 @@ cp .env.example .env
 
 | Thành phần | Tỷ trọng | Mô tả |
 |-----------|----------|-------|
-| **Bài Cá Nhân** | **50%** | 10 tasks, chấm bằng automated tests + manual review |
+| **Pipeline Kỹ Thuật (Task 1-10)** | **50%** | 10 tasks, cả nhóm cùng làm, chấm bằng automated tests + manual review |
 | **Bài Nhóm** | **30%** | RAG Chatbot + Evaluation pipeline |
 | **Bonus** | **20%** | Các tiêu chí nâng cao (xem bên dưới) |
 
 ---
 
-### Bài Cá Nhân — 50 điểm (50%)
+### Pipeline Kỹ Thuật (Task 1-10) — 50 điểm (50%)
 
 Chấm bằng automated test suite (`pytest tests/ -v`). Mỗi task có test riêng.
 
@@ -636,7 +637,7 @@ Chấm bằng automated test suite (`pytest tests/ -v`). Mỗi task có test ri�
 | Tiêu chí | Điểm |
 |----------|------|
 | RAG Chatbot demo hoạt động được | 8 |
-| Tích hợp pipeline các thành viên | 4 |
+| Tích hợp pipeline Task 1-10 đã xây dựng | 4 |
 | Kiến trúc rõ ràng + README | 3 |
 | Chất lượng câu trả lời (có citation, đúng nội dung) | 3 |
 | **Evaluation pipeline** (DeepEval / RAGAS / TruLens) | **12** |
@@ -652,14 +653,14 @@ Chấm bằng automated test suite (`pytest tests/ -v`). Mỗi task có test ri�
 | Tiêu chí | Điểm |
 |----------|------|
 | Giải thích cơ chế lexical search khác BM25 (trong demo) | 5 |
-| Implement HyDE (Hypothetical Document Embeddings) cho query | 5 |
+| Implement phương pháp hỗ trợ Semantic Search (HyDE, Query Expansion, ...) | 5 |
 | Deploy chatbot online (Hugging Face Spaces / Render / ...) | 4 |
 | Conversation memory (multi-turn chat) | 3 |
 | UI/UX chất lượng (hiển thị source, score, highlight) | 3 |
 
 ---
 
-### Chạy Test Chấm Điểm Bài Cá Nhân
+### Chạy Test Chấm Điểm Pipeline Kỹ Thuật (Task 1-10)
 
 ```bash
 # Chạy toàn bộ test suite
@@ -674,13 +675,17 @@ pytest tests/test_individual.py::TestTask5 -v
 
 ## Hướng Dẫn Thời Gian
 
-| Giai đoạn | Thời gian | Hoạt động |
-|-----------|-----------|-----------|
-| Task 1–3 | 0:00–0:45 | Thu thập data + convert markdown |
-| Task 4–6 | 0:45–1:45 | Chunking, indexing, search modules |
-| Task 7–8 | 1:45–2:15 | Reranking + PageIndex setup |
-| Task 9–10 | 2:15–3:00 | Pipeline hoàn chỉnh + generation |
-| Bài nhóm | Ngoài giờ | Tích hợp + build demo |
+Theo đúng 7 Checkpoint trong `checkpoint_timer.html` (tổng 180 phút = 3 giờ):
+
+| Checkpoint | Thời gian | Khoảng giờ | Hoạt động |
+|------------|-----------|-------------|-----------|
+| CP0 | 10 phút | 0:00–0:10 | Setup môi trường & khai báo API keys |
+| CP1 | 25 phút | 0:10–0:35 | Task 1–3: Thu thập data + convert markdown |
+| CP2 | 25 phút | 0:35–1:00 | Task 4–6: Chunking, indexing, search modules |
+| CP3 | 20 phút | 1:00–1:20 | Task 7–8: Reranking + PageIndex fallback |
+| CP4 | 25 phút | 1:20–1:45 | Task 9–10: Pipeline hoàn chỉnh + generation (mốc 50đ Task 1-10) |
+| CP5 | 30 phút | 1:45–2:15 | Bài nhóm: Chatbot UI & đánh giá RAGAS |
+| CP6 | 45 phút | 2:15–3:00 | Thuyết trình demo live & nộp bài |
 
 ---
 
